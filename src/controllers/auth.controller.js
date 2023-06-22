@@ -1,6 +1,7 @@
 import User from '../models/user.model.js'
+import { createAccessToken } from '../libs/jwt.js'
+
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 
 export const register = async (req,res)=> {
   const { username, email, password } = req.body
@@ -14,27 +15,71 @@ export const register = async (req,res)=> {
     })
 
     const savedUser = await newUser.save()
+    const token = await createAccessToken({id: savedUser._id})
 
-    jwt.sign(
-      {
-        id: savedUser._id,
-      },
-      'secret123',
-      {
-        expiresIn: '1d'
-      },
-      (err, token) => {
-        if(err) console.log(err)
-        res.cookie('toke', token)
-        res.json({
-          message: 'User created successfully'
-        })
-      }
-    )
-
+    res.cookie('token', token)
+    res.json({ 
+      message: 'User Created succesfully',
+      username: savedUser.username,
+      eamil: savedUser.email,
+      createdAt:  savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
+    })
   }catch(error){
     console.log(error)
   }
 }
 
-export const login = (req,res)=> {res.send('login')}
+export const login = async (req,res)=> {
+  const { email, password } = req.body
+
+  try{
+    const userFound = await User.findOne({ email })
+
+    if(!userFound) return res.status(400).json({ message: 'User not found'})
+
+    const isMatch = await bcrypt.compare(password, userFound.password)
+
+    if(!isMatch) return res.status(400).json({ message: 'Incorrect password'})
+
+    const token = await createAccessToken({id: userFound._id})
+
+    res.cookie('token', token)
+    res.json({
+      message: 'User Logged',
+      username: userFound.username,
+      eamil: userFound.email,
+      createdAt:  userFound.createdAt,
+      updatedAt: userFound.updatedAt,
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+
+  
+  // try{
+  //   const hashedPassword = await bcrypt.hash(password,10)
+
+  //   const newUser = new User({
+  //     username,
+  //     email,
+  //     password: hashedPassword,
+  //   })
+
+  //   const savedUser = await newUser.save()
+  //   
+
+  //   res.cookie('token', token)
+  //   res.json({ 
+  //     message: 'User Created succesfully',
+  //     username: savedUser.username,
+  //     eamil: savedUser.email,
+  //     createdAt:  savedUser.createdAt,
+  //     updatedAt: savedUser.updatedAt,
+  //   })
+  // }catch(error){
+  //   console.log(error)
+  // }
+
+}
