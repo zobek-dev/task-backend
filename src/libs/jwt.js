@@ -9,7 +9,7 @@ export const createAccessToken = (payload) => {
       {
         expiresIn: '1d'
       },
-      (err,token)=> {
+      (err, token)=> {
         if(err) reject(err)
         resolve(token)
       }
@@ -18,19 +18,3 @@ export const createAccessToken = (payload) => {
 }
 
 
-// jwt.sign(
-//   {
-//     id: savedUser._id,
-//   },
-//   'secret123',
-//   {
-//     expiresIn: '1d'
-//   },
-//   (err, token) => {
-//     if(err) console.log(err)
-//     res.cookie('toke', token)
-//     res.json({
-//       message: 'User created successfully'
-//     })
-//   }
-// )

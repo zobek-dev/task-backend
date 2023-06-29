@@ -25,6 +25,7 @@ export const register = async (req,res)=> {
       createdAt:  savedUser.createdAt,
       updatedAt: savedUser.updatedAt,
     })
+    
   }catch(error){
     console.log(error)
   }
@@ -48,7 +49,7 @@ export const login = async (req,res)=> {
     res.json({
       message: 'User Logged',
       username: userFound.username,
-      eamil: userFound.email,
+      email: userFound.email,
       createdAt:  userFound.createdAt,
       updatedAt: userFound.updatedAt,
     })
@@ -56,30 +57,36 @@ export const login = async (req,res)=> {
   }catch(err){
     console.log(err)
   }
-
-  
-  // try{
-  //   const hashedPassword = await bcrypt.hash(password,10)
-
-  //   const newUser = new User({
-  //     username,
-  //     email,
-  //     password: hashedPassword,
-  //   })
-
-  //   const savedUser = await newUser.save()
-  //   
-
-  //   res.cookie('token', token)
-  //   res.json({ 
-  //     message: 'User Created succesfully',
-  //     username: savedUser.username,
-  //     eamil: savedUser.email,
-  //     createdAt:  savedUser.createdAt,
-  //     updatedAt: savedUser.updatedAt,
-  //   })
-  // }catch(error){
-  //   console.log(error)
-  // }
-
 }
+
+export const logout = (req, res) => {
+  res.cookie('token', '', {
+    expires: new Date(0)
+  })
+  return res.sendStatus(200)
+}
+
+export const profile = async (req, res) => {
+  const userFounded = await User.findById(req.user.id)
+  if(!userFounded) return res.status(400).json({ message: 'User not found' })
+
+  return res.json({
+    id: userFounded._id,
+    username: userFounded.username,
+    email: userFounded.email,
+    createdAt: userFounded.createdAt,
+    updatedAt: userFounded.updatedAt
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
