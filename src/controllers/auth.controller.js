@@ -22,10 +22,9 @@ export const register = async (req,res)=> {
       message: 'User Created succesfully',
       username: savedUser.username,
       eamil: savedUser.email,
-      createdAt:  savedUser.createdAt,
+      createdAt: savedUser.createdAt,
       updatedAt: savedUser.updatedAt,
-    })
-    
+    }) 
   }catch(error){
     console.log(error)
   }
