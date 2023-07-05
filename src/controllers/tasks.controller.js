@@ -1,26 +1,27 @@
 import Task from '../models/task.model.js'
 
 export const getTasks = async (req, res) => { 
-  const tasks = await Task.find()
+  const tasks = await Task.find({
+    user: req.user.id
+  }).populate('user')
   res.json(tasks)
 }
 
 export const getTask = async (req, res) => {
-  //console.log(req.params.id)
   const task = await Task.findById(req.params.id)
-
-  // if(!task) return res.status(400).json({ message: 'Task not found'})
-
-  // res.json(task)
-  //res.send('task')
+  //console.log(task)
+  if(!task) return res.status(400).json({ message: 'Task not found'})
+  res.json(task)
 }
 
 export const createTask = async (req, res) => {
   const {title, description, date } = req.body
+
   const newTask = new Task({
     title,
     description, 
-    date
+    date,
+    user: req.user.id
   })
 
   const savedTask = await newTask.save()
@@ -28,6 +29,17 @@ export const createTask = async (req, res) => {
   res.json({savedTask})
 }
 
-export const deleteTask = async (req, res) => {res.send('Delete Task')}
+export const deleteTask = async (req, res) => {
+  const task = await Task.findByIdAndDelete(req.params.id)
 
-export const updateTask = async (req, res) => {res.send('Update Task')}
+  if(!task) return res.status(404).json({message: 'Task not found'})
+  res.json(task)
+}
+
+export const updateTask = async (req, res) => {
+  const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    new: true
+  })
+  if(!task) return req.status(404).json({message: 'Task not found'})
+  res.json(task)
+}
