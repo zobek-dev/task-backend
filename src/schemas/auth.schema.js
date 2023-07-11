@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const registerSchema = z.object({
-  userName: z.string({
+  username: z.string({
     required_error: 'Username is required',
   }),
   email: z.string({
